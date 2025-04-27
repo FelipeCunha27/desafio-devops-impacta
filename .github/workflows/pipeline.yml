@@ -1,4 +1,4 @@
-name: Pipeline Hello World
+name: Pipeline Confiável
 on: [push]
 
 jobs:
@@ -7,13 +7,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Build Docker image
-        run: docker build -t my-hello-world .
-        
-      - name: Test application
+      - name: Build
         run: |
-          docker run --rm my-hello-world \
-            python -c "from app import app; print('App import test passed!')"
+          docker build -t reliable-app .
+          
+      - name: Test
+        run: |
+          docker run --rm reliable-app \
+            python -c "import flask; print('Flask version:', flask.__version__)"
 
   deploy:
     needs: build_and_test
