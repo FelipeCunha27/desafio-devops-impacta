@@ -6,19 +6,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -t hello-world .
+      - name: Build Docker image
+        run: docker build -t my-hello-world .
 
   test:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          docker run --rm hello-world \
-            python -c "from app import app; print('App importado com sucesso!')"
+      - uses: actions/checkout@v4
+      - name: Test application
+        run: |
+          docker run --rm my-hello-world \
+            python -c "from app import app; print('App import test passed!')"
 
   deploy:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          docker run -d -p 5001:5000 --name my-app hello-world
+      - name: Run container
+        run: |
+          docker run -d -p 5000:5000 --name running-app my-hello-world
