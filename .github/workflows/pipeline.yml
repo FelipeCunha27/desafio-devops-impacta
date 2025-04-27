@@ -8,12 +8,25 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build Docker image
         run: docker build -t my-hello-world .
+      - name: Save Docker image
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-image
+          path: /tmp/my-hello-world.tar
+          if-no-files-found: error
 
   test:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Load Docker image
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-image
+          path: /tmp
+      - name: Load image
+        run: docker load -i /tmp/my-hello-world.tar
       - name: Test application
         run: |
           docker run --rm my-hello-world \
@@ -23,6 +36,13 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
+        with:
+          name: docker-image
+          path: /tmp
+      - name: Load image
+        run: docker load -i /tmp/my-hello-world.tar
       - name: Run container
         run: |
           docker run -d -p 5000:5000 --name running-app my-hello-world
